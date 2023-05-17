@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">UI Test ENOUVO</string>
+    <string name="app_name">Approval Matrix</string>
+    <string name="tambah_new_matrix">Tambah New Matrix</string>
+    <string name="range_of_limite_approval">Range Limite of Approval</string>
+    <string name="minimum">Minimum</string>
+    <string name="currency">IDR</string>
+    <string name="maximum">Maximum</string>
+    <string name="numOfApproval">Number of Approval</string>
+    <string name="approver">Approver</string>
+    <string name="title_activity_approval_matrix">ApprovalMatrixActivity</string>
+    <string name="holder_field_input_matrix_name">Input matrix name</string>
+    <string name="select_feature">Select Feature</string>
+    <string name="approval_matrix_alias">Approval Matrix Alias</string>
+    <string name="feature">Feature</string>
+    <string name="range_of_approval">Range of Approval</string>
+    <string name="input_text_here">Input Text Here</string>
+    <string name="input_number">Input Number</string>
+    <string name="number_of_approval">Number of Approval</string>
+    <string name="sequence">Sequence</string>
+    <string name="search_keyword">Search Keywords</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="back_to_edit">Back to edit</string>
+    <string name="add_to_list">Add new approval</string>
+    <string name="reset">Reset</string>
 </resources>
