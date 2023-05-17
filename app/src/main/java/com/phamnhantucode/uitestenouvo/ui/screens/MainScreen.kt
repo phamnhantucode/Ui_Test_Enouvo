@@ -171,15 +171,15 @@ fun ListMatrixBar(
                 0,
                 50000,
                 1,
-                listOf(Approver("TEST1, TEST2"))
+                listOf(Approver(1, "TEST2"))
             )
         }
         item {
             CardApprovalMatrix(
                 50000,
                 100000,
-                2,
-                listOf(Approver("TEST4, TEST5"), Approver("TEST1, TEST2, TEST3"))
+                1,
+                listOf(Approver(1, "TEST1"))
             )
         }
     }
@@ -257,7 +257,7 @@ fun CardApprovalMatrix(
     minimumIDR: Long = 0,
     maximumIDR: Long = 50000,
     numOfApproval: Int = 1,
-    approver: List<Approver> = listOf(Approver("TEST1, TEST2"))
+    approver: List<Approver>
 ) {
     Box(
         modifier = Modifier
@@ -402,7 +402,7 @@ fun CardApprovalMatrix(
                         )
                     )
                     Text(
-                        text = approver[i].approvers,
+                        text = approver[i].approver,
                         modifier = Modifier.weight(1f),
                         style = TextStyle(
                             color = MaterialTheme.colors.primaryVariant,
