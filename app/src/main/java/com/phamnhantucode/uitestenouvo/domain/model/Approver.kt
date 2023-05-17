@@ -1,5 +1,7 @@
 package com.phamnhantucode.uitestenouvo.domain.model
-
-data class Approver(
-    val approvers: String
-)
+//
+//@Entity
+//data class Approver(
+//    val
+//    val approvers: String
+//)
