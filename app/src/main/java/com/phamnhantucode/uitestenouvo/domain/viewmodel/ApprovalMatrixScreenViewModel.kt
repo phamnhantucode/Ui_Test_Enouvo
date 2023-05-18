@@ -258,7 +258,8 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is Event.FilterOption -> {
-                    listStringOption.emit(saveListOption.filter { it.lowercase().contains(filterOption.value) }.toMutableList())
+                    listStringOption.emit(saveListOption.filter { it.lowercase().startsWith(filterOption.value.lowercase(), ignoreCase = true
+                    ) }.toMutableList())
                 }
             }
         }

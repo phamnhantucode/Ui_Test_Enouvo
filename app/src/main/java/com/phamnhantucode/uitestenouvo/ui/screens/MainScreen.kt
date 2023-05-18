@@ -80,7 +80,8 @@ fun TopAppBarMainScreen() {
                 text = stringResource(id = R.string.app_name),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
+                fontSize = 18.sp
             )
         },
         backgroundColor = MaterialTheme.colors.primary,

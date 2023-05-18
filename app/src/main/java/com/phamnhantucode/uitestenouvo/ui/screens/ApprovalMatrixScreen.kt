@@ -515,7 +515,7 @@ fun BottomFieldBar(
         RangeOfApprovalField(type = "Minimum", value = minimum.value, error.rangeOfApprovalResult) {
             minimum.value = it
         }
-        RangeOfApprovalField(type = "Maxmum", value = maximum.value, error.rangeOfApprovalResult) {
+        RangeOfApprovalField(type = "Maximum", value = maximum.value, error.rangeOfApprovalResult) {
             maximum.value = it
         }
         NumOfApprovalField(
@@ -842,7 +842,8 @@ fun TopAppBarApprovalMatrixScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
             fontWeight = FontWeight.Normal,
-            color = Color.White
+            color = Color.White,
+            fontSize = 18.sp
         )
     }, navigationIcon = {
         Icon(
