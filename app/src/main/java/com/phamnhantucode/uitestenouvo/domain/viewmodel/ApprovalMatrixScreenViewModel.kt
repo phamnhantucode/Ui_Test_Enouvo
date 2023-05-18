@@ -110,7 +110,6 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     listOptionSelected.emit(mutableListOf(option))
                 }
-
             }
         }
     }
@@ -217,6 +216,27 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
         minimum.value = ""
         maximum.value = ""
         numOfApproval.value = 0
+    }
+
+    fun updateApprovalMatrix() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                approvalRepository.updateApprovalView(
+                    approvalView.value.copy(
+                        alias = alias.value,
+                        minimum = minimum.value.toLong(),
+                        maximum = maximum.value.toLong(),
+                        num_of_approver = numOfApproval.value,
+                        feature = featureSelected.value,
+                        approvers = approverSelected.value.map { it.value }
+                    )
+                )
+            }
+        }
+    }
+
+    fun deleteApprovalMatrix() {
+        TODO("Not yet implemented")
     }
 
     sealed class Event {

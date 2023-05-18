@@ -45,7 +45,17 @@ class ApprovalRepositoryImpl(
     }
 
     override suspend fun updateApprovalView(approvalView: ApprovalView) {
-
+        approvalDao.updateApproval(
+            approval = Approval(
+                id = approvalView.id,
+                alias = approvalView.alias,
+                minimum = approvalView.minimum,
+                maximum = approvalView.maximum,
+                num_of_approver = approvalView.num_of_approver,
+                featureId = approvalView.feature!!.id
+            ),
+            approvers = approvalView.approvers
+        )
     }
 
     override suspend fun deleteApprovalView(approvalView: ApprovalView) {

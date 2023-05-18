@@ -79,6 +79,9 @@ fun EditScreen(
         var onShowListOption = remember {
             viewModel.onShowListOption
         }
+        var isUpdate = remember {
+            mutableStateOf(true)
+        }
 
         Column(
             modifier = Modifier
@@ -103,23 +106,65 @@ fun EditScreen(
                     backgroundColor = MaterialTheme.colors.primaryVariant,
                     title = stringResource(id = R.string.update).uppercase()
                 ) {
-
+                    isUpdate.value = true
+                    viewModel.checkInputApprovalMatrix()
                 }
                 ButtonApprovalMatrixScreen(
                     textColor = MaterialTheme.colors.primaryVariant,
                     backgroundColor = Color.White,
                     title = stringResource(id = R.string.delete).uppercase()
                 ) {
-
+                    isUpdate.value = false
+                    viewModel.isShowConfirmDialog.value = true
                 }
             }
         }
         //Bottom sheet list option
         BottomSheetSelection(
             onShowListOption,
-            "Select Feature",
-            onSelected = viewModel.onSelectOption
+            stringResource(id = R.string.select_option),
+            onSelected ={
+                viewModel.onSelectOption(it)
+            }
         )
+
+        //show dialog
+        val isShowErrorDialog = viewModel.isShowErrorDialog
+        val isShowConfirmDialog = viewModel.isShowConfirmDialog
+        if (isShowConfirmDialog.value) {
+            ConfirmDialog(
+                message = if (isUpdate.value) stringResource(id = R.string.confirm_update) else stringResource(
+                    id = R.string.confirm_delete
+                ),
+                title = if (isUpdate.value) stringResource(id = R.string.confirm_to_update) else stringResource(
+                    id = R.string.confirm_to_delete
+                ),
+                onConfirm = {
+                    if (isUpdate.value) {
+                        viewModel.updateApprovalMatrix()
+                        navController.popBackStack()
+                    } else {
+                        viewModel.deleteApprovalMatrix()
+                        navController.popBackStack()
+                    }
+                }) {
+                isShowConfirmDialog.value = false
+            }
+        }
+        if (isShowErrorDialog.value) {
+            FailedDialog(
+                message = listOf(
+                    viewModel.error.value.aliasResult,
+                    viewModel.error.value.approversResult,
+                    viewModel.error.value.featureResult,
+                    viewModel.error.value.numOfApproverResult,
+                    viewModel.error.value.rangeOfApprovalResult,
+                ),
+                title = stringResource(id = R.string.failed)
+            ) {
+                isShowErrorDialog.value = false
+            }
+        }
     }
 }
 
@@ -131,9 +176,6 @@ fun AddScreen(
     Surface(
         color = MaterialTheme.colors.primary
     ) {
-        var listOptions =
-            viewModel.listStringOption
-
         var onShowListOption = remember {
             viewModel.onShowListOption
         }
@@ -457,6 +499,7 @@ fun BottomFieldBar(
         NumOfApprovalField(value = if (numOfApproval.value == 0) "" else numOfApproval.value.toString(),
             onValueChange = {
                 numOfApproval.value = if (it.isBlank()) 0 else it.toInt()
+                viewModel.approverSelected.value = mutableMapOf()
             })
 
         val approverSelected =

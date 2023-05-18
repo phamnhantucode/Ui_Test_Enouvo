@@ -14,6 +14,7 @@ interface ApprovalDao {
     @Insert
     fun insertApprovalApprover(approvalApprover: ApprovalApprover)
 
+
     @Transaction
     suspend fun addApprovalApprover(approval: Approval, approvers: List<Approver>) {
         val approvalId = insertApproval(approval)
@@ -22,11 +23,27 @@ interface ApprovalDao {
         }
     }
 
+    @Transaction
+    suspend fun updateApproval(approval: Approval, approvers: List<Approver>) {
+        updateApproval(approval)
+
+        deleteApprovalApprovers(approval.id!!)
+
+        val approvalApprovers = approvers.map { ApprovalApprover(approval.id, it.id) }
+        approvers.forEach { approver ->
+            insertApprovalApprover(ApprovalApprover(approval.id, approver.id))
+        }
+    }
+
+
     @Update
     suspend fun updateApproval(approval: Approval)
 
     @Delete
     suspend fun deleteApproval(approval: Approval)
+
+    @Delete
+    suspend fun deleteApprovalApprover(approvalApprover: ApprovalApprover)
 
     @Query("SELECT * FROM approvals")
     fun getAllApprovals(): Flow<List<Approval>>
@@ -43,4 +60,7 @@ interface ApprovalDao {
         """
     )
     suspend fun getListApprover(approvalId: Int?): List<Approver>
+
+    @Query("DELETE FROM approval_approver WHERE id_approval = :approvalId")
+    suspend fun deleteApprovalApprovers(approvalId: Int)
 }

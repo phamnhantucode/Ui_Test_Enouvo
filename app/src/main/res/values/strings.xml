@@ -29,4 +29,10 @@
     <string name="confirm_add">Please confirm to create new Tranfer Online Approval Matrix</string>
     <string name="confirm_to_add">Confirm to Add</string>
     <string name="failed">Failed</string>
+    <string name="confirm_with_action">Please confirm to update or delete of Approval Matrix</string>
+    <string name="confirm_update">Please confirm to update Approval Matrix</string>
+    <string name="confirm_delete">Please confirm to delete Approval Matrix</string>
+    <string name="confirm_to_update">Confirm Update</string>
+    <string name="confirm_to_delete">Confirm Delete</string>
+    <string name="select_option">Select Option</string>
 </resources>
