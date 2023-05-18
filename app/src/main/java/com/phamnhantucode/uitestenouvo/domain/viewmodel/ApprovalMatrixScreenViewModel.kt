@@ -77,7 +77,18 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 if (id >= 0) {
                     _approvalView.value =
-                        approvalRepository.getApproval(id = id).toApprovalView(approvalRepository)
+                        approvalRepository.getApproval(id = id).toApprovalView(approvalRepository).also {av ->
+                            alias.value = av.alias
+                            featureSelected.value = av.feature
+                            minimum.value = av.minimum.toString()
+                            maximum.value = av.maximum.toString()
+                            numOfApproval.value = av.num_of_approver
+                            val tempMap = mutableMapOf<Int, Approver>()
+                            for (i in 0 until numOfApproval.value) {
+                                 tempMap[i] = av.approvers[i]
+                            }
+                            approverSelected.emit(tempMap)
+                        }
                 }
 
             }

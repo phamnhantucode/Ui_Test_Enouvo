@@ -1,5 +1,6 @@
 package com.phamnhantucode.uitestenouvo.domain.model
 
+import androidx.compose.runtime.MutableState
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

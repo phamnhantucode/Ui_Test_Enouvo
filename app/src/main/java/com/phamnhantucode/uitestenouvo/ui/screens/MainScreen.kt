@@ -3,6 +3,7 @@ package com.phamnhantucode.uitestenouvo.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import com.phamnhantucode.uitestenouvo.R
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.phamnhantucode.uitestenouvo.*
+import com.phamnhantucode.uitestenouvo.domain.model.ApprovalView
 import com.phamnhantucode.uitestenouvo.domain.model.Approver
 import com.phamnhantucode.uitestenouvo.domain.viewmodel.MainScreenViewModel
 
@@ -61,7 +63,7 @@ fun MainScreen(
                         }
                         Divider()
                         ListFilterBar(filter = listOf())
-                        ListMatrixBar()
+                        ListMatrixBar(navController = navController)
                         Divider()
                     }
 
@@ -162,7 +164,8 @@ fun ListFilterBar(
 
 @Composable
 fun ListMatrixBar(
-    viewModel: MainScreenViewModel = hiltViewModel()
+    viewModel: MainScreenViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val approvalView = viewModel.approvalViews.collectAsState()
     LazyColumn(
@@ -173,10 +176,11 @@ fun ListMatrixBar(
     ) {
         items(approvalView.value) {approvalView ->
             CardApprovalMatrix(
-                approvalView.minimum,
-                approvalView.maximum,
-                approvalView.num_of_approver,
-                approvalView.approvers
+                approvalView,
+                onClick = {
+                    navController.navigate(Screens.ApprovalMatrixScreen.toEditMatrix(it))
+                }
+
             )
         }
     }
@@ -251,10 +255,8 @@ fun FilterBar(
 
 @Composable
 fun CardApprovalMatrix(
-    minimumIDR: Long = 0,
-    maximumIDR: Long = 50000,
-    numOfApproval: Int = 1,
-    approver: List<Approver>
+    approvalView: ApprovalView,
+    onClick: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -264,6 +266,7 @@ fun CardApprovalMatrix(
                 Color.LightGray,
                 shape = RoundedCornerShape(15.dp)
             )
+            .clickable { approvalView.id?.let { onClick(it) } }
             .padding(vertical = 10.dp, horizontal = 20.dp)
     ) {
         Column(
@@ -310,7 +313,7 @@ fun CardApprovalMatrix(
                             )
                         }
                         Text(
-                            text = Utils.numberCovert(minimumIDR),
+                            text = Utils.numberCovert(approvalView.minimum),
                             style = TextStyle(
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.End,
@@ -344,7 +347,7 @@ fun CardApprovalMatrix(
                             )
                         }
                         Text(
-                            text = Utils.numberCovert(maximumIDR),
+                            text = Utils.numberCovert(approvalView.maximum),
                             style = TextStyle(
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.End,
@@ -375,7 +378,7 @@ fun CardApprovalMatrix(
 
                 )
                 Text(
-                    text = numOfApproval.toString(), modifier = Modifier.weight(1f),
+                    text = approvalView.num_of_approver.toString(), modifier = Modifier.weight(1f),
                     style = TextStyle(
                         color = MaterialTheme.colors.primaryVariant,
                         textAlign = TextAlign.End,
@@ -384,7 +387,7 @@ fun CardApprovalMatrix(
                 )
             }
             Divider()
-            for (i in 0 until approver.size) {
+            for (i in 0 until approvalView.approvers.size) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
@@ -399,7 +402,7 @@ fun CardApprovalMatrix(
                         )
                     )
                     Text(
-                        text = approver[i].approver,
+                        text = approvalView.approvers[i].approver,
                         modifier = Modifier.weight(1f),
                         style = TextStyle(
                             color = MaterialTheme.colors.primaryVariant,
