@@ -18,10 +18,9 @@ interface ApprovalRepository {
     suspend fun updateApprovalView(approvalView: ApprovalView)
     suspend fun deleteApprovalView(approvalView: ApprovalView)
     suspend fun getFeature(featureId: Int): Feature
-    suspend fun getListApproval(approval: Approval): List<Approver>
     suspend fun getAllFeatures(): List<Feature>
     suspend fun getAllApprovers(): List<Approver>
 
     suspend fun addNewApprovalMatrix(approvalView: ApprovalView)
-    suspend fun addApproval(approval: Approval)
+    suspend fun getListApprover(approval: Approval): List<Approver>
 }

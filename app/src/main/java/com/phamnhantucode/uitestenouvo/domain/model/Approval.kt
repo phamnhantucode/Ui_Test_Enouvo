@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.phamnhantucode.uitestenouvo.data.repository.ApprovalRepositoryImpl
-import kotlinx.coroutines.CoroutineScope
 
 
 @Entity(
@@ -20,8 +19,10 @@ import kotlinx.coroutines.CoroutineScope
     ]
 )
 data class Approval(
+
     @PrimaryKey
     val id: Int ?= null,
+
     val alias: String,
     val minimum: Long,
     val maximum: Long,
@@ -37,7 +38,7 @@ data class Approval(
             maximum = this.maximum,
             num_of_approver = this.num_of_approver,
             feature = repository.getFeature(this.featureId),
-            approver = repository.getListApproval(this)
+            approvers = repository.getListApprover(this)
         )
     }
 }

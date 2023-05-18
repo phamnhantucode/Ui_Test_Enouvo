@@ -1,6 +1,7 @@
 package com.phamnhantucode.uitestenouvo.ui.screens
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -31,9 +32,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.phamnhantucode.uitestenouvo.*
 import com.phamnhantucode.uitestenouvo.R
+import com.phamnhantucode.uitestenouvo.domain.viewmodel.ApprovalMatrixScreenViewModel
+import com.phamnhantucode.uitestenouvo.ui.components.ConfirmDialog
+import com.phamnhantucode.uitestenouvo.ui.components.FailedDialog
 import com.phamnhantucode.uitestenouvo.ui.theme.BrandingGrey
 import com.phamnhantucode.uitestenouvo.ui.theme.LightGrey0
 import com.phamnhantucode.uitestenouvo.ui.theme.LightGrey1
@@ -42,90 +47,194 @@ import com.phamnhantucode.uitestenouvo.ui.theme.LightGrey1
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ApprovalMatrixScreen(
+    navController: NavHostController,
+    argument: Bundle?,
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
+) {
+    val type = argument?.getString("type") ?: "add"
+    argument?.getInt("id")?.let {
+        viewModel.getApproval(it)
+    }
+    Scaffold(topBar = {
+        TopAppBarApprovalMatrixScreen() {
+            navController.popBackStack()
+        }
+    }, content = {
+        when (type) {
+            "add" -> AddScreen(viewModel = viewModel, navController = navController)
+            "edit" -> EditScreen(viewModel = viewModel, navController = navController)
+        }
+
+    })
+}
+
+@Composable
+fun EditScreen(
+    viewModel: ApprovalMatrixScreenViewModel,
     navController: NavHostController
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBarApprovalMatrixScreen() {
-                navController.popBackStack()
-            }
-        }, content = {
+    Surface(
+        color = MaterialTheme.colors.primary
+    ) {
+        var onShowListOption = remember {
+            viewModel.onShowListOption
+        }
 
-            Surface(
-                color = MaterialTheme.colors.primary
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .background(Color.White)
+                .padding(horizontal = 25.dp, vertical = 15.dp)
+        ) {
+            GroupInputField(
+                onShowListOption, modifier = Modifier.weight(Float.MAX_VALUE)
+            )
+
+            //Buttons
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                var listOptions by remember {
-                    mutableStateOf(listOf("Default", "Transfer Online"))
-                }
-                var onShowListOption = remember {
-                    mutableStateOf(false)
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                        .background(Color.White)
-                        .padding(horizontal = 25.dp, vertical = 15.dp)
+                ButtonApprovalMatrixScreen(
+                    textColor = Color.White,
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                    title = stringResource(id = R.string.update).uppercase()
                 ) {
-                    GroupInputField(
-                        onShowListOption,
-                        modifier = Modifier.weight(Float.MAX_VALUE)
-                    )
 
-                    //Buttons
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp, horizontal = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        ButtonApprovalMatrixScreen(
-                            textColor = Color.White,
-                            backgroundColor = MaterialTheme.colors.primaryVariant,
-                            title = stringResource(id = R.string.add_to_list).uppercase()) {
-
-                        }
-                        ButtonApprovalMatrixScreen(
-                            textColor = MaterialTheme.colors.primaryVariant,
-                            backgroundColor = Color.White,
-                            title = stringResource(id = R.string.reset).uppercase()) {
-
-                        }
-                    }
                 }
-                //Bottom sheet list option
-                BottomSheetSelection(listSelect = listOptions, onShowListOption, "Select Feature")
+                ButtonApprovalMatrixScreen(
+                    textColor = MaterialTheme.colors.primaryVariant,
+                    backgroundColor = Color.White,
+                    title = stringResource(id = R.string.delete).uppercase()
+                ) {
+
+                }
             }
-        })
+        }
+        //Bottom sheet list option
+        BottomSheetSelection(
+            onShowListOption,
+            "Select Feature",
+            onSelected = viewModel.onSelectOption
+        )
+    }
 }
+
+@Composable
+fun AddScreen(
+    viewModel: ApprovalMatrixScreenViewModel,
+    navController: NavHostController
+) {
+    Surface(
+        color = MaterialTheme.colors.primary
+    ) {
+        var listOptions =
+            viewModel.listStringOption
+
+        var onShowListOption = remember {
+            viewModel.onShowListOption
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .background(Color.White)
+                .padding(horizontal = 25.dp, vertical = 15.dp)
+        ) {
+            GroupInputField(
+                onShowListOption, modifier = Modifier.weight(Float.MAX_VALUE)
+            )
+
+            //Buttons
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                ButtonApprovalMatrixScreen(
+                    textColor = Color.White,
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                    title = stringResource(id = R.string.add_to_list).uppercase()
+                ) {
+                    viewModel.checkInputApprovalMatrix()
+                }
+                ButtonApprovalMatrixScreen(
+                    textColor = MaterialTheme.colors.primaryVariant,
+                    backgroundColor = Color.White,
+                    title = stringResource(id = R.string.reset).uppercase()
+                ) {
+                    viewModel.resetValue()
+                }
+            }
+        }
+        //Bottom sheet list option
+        BottomSheetSelection(
+            onShowListOption, "Select Feature"
+        ) {
+            viewModel.onSelectOption(it)
+        }
+
+        //show dialog
+        val isShowErrorDialog = viewModel.isShowErrorDialog
+        val isShowConfirmDialog = viewModel.isShowConfirmDialog
+        if (isShowConfirmDialog.value) {
+            ConfirmDialog(
+                message = stringResource(id = R.string.confirm_add),
+                title = stringResource(id = R.string.confirm_to_add),
+                onConfirm = {
+                    viewModel.addNewApprovalMatrix()
+                    navController.popBackStack()
+                }) {
+                isShowConfirmDialog.value = false
+            }
+        }
+        if (isShowErrorDialog.value) {
+            FailedDialog(
+                message = listOf(
+                    viewModel.error.value.aliasResult,
+                    viewModel.error.value.approversResult,
+                    viewModel.error.value.featureResult,
+                    viewModel.error.value.numOfApproverResult,
+                    viewModel.error.value.rangeOfApprovalResult,
+                ),
+                title = stringResource(id = R.string.failed)
+            ) {
+                isShowErrorDialog.value = false
+            }
+        }
+
+    }
+}
+
 
 @Composable
 fun GroupInputField(
     onShowListOption: MutableState<Boolean>,
-    modifier: Modifier
+    modifier: Modifier,
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 10.dp, horizontal = 20.dp)
-            .verticalScroll(rememberScrollState())
     ) {
-        var value by remember {
-            mutableStateOf("")
-        }
+
         HeaderBar("Create New Approval Matrix")
-        TopFieldBar(value = value,
-            onClickSelectionField = {
-                onShowListOption.value = true
-            }
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            value = it
-        }
-        Divider()
-        BottomFieldBar() {
-            onShowListOption.value = true
+
+            TopFieldBar(onClickSelectionField = {
+                viewModel.showListOptionFeature()
+            })
+            Divider()
+            BottomFieldBar()
         }
     }
 }
@@ -133,22 +242,18 @@ fun GroupInputField(
 
 @Composable
 fun BottomSheetSelection(
-    listSelect: List<String>,
     onShowListOption: MutableState<Boolean>,
-    title: String
+    title: String,
+    onSelected: (String) -> Unit
 ) {
     AnimatedVisibility(
         visible = onShowListOption.value,
-        enter = slideInVertically(
-            initialOffsetY = {
-                it
-            }
-        ) + fadeIn(),
-        exit = slideOutVertically(
-            targetOffsetY = {
-                it
-            }
-        ) + fadeOut(),
+        enter = slideInVertically(initialOffsetY = {
+            it
+        }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = {
+            it
+        }) + fadeOut(),
     ) {
         Box(
             modifier = Modifier
@@ -165,8 +270,7 @@ fun BottomSheetSelection(
                     .background(Color.White)
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(vertical = 10.dp, horizontal = 25.dp)
+                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 25.dp)
                 ) {
                     //Header bottom sheet
                     Box(
@@ -174,24 +278,20 @@ fun BottomSheetSelection(
                     ) {
                         //Header
                         Text(
-                            text = title,
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            ),
-                            modifier = Modifier.align(Alignment.Center)
+                            text = title, style = TextStyle(
+                                color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 15.sp
+                            ), modifier = Modifier.align(Alignment.Center)
                         )
                         //Icon exit
                         IconButton(
                             onClick = {
                                 onShowListOption.value = false
-                            },
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            }, modifier = Modifier.align(Alignment.CenterEnd)
 
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Close, contentDescription = "Close",
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
                                 modifier = Modifier
                                     .size(20.dp)
                                     .clip(CircleShape)
@@ -209,7 +309,9 @@ fun BottomSheetSelection(
                     })
                 }
                 //list selection
-                CheckBoxGroup(listSelect = listSelect)
+                CheckBoxGroup(
+                    onSelected = onSelected
+                )
             }
         }
     }
@@ -217,25 +319,25 @@ fun BottomSheetSelection(
 
 @Composable
 private fun CheckBoxGroup(
-    listSelect: List<String>,
+    onSelected: (String) -> Unit,
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
 ) {
 
-    val (selectedOption: String, onOptionSelected: (String) -> Unit) = remember {
-        mutableStateOf(
-            listSelect[0]
-        )
-    }
-
+    val listSelected = viewModel.listOptionSelected.collectAsState()
+    val listOption = viewModel.listStringOption.collectAsState()
     Column(
         Modifier
             .selectableGroup()
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
-        listSelect.forEach { text ->
+        listOption.value.forEach { text ->
             SelectOption(
                 text = text,
-                isSelectedOption = selectedOption == text,
-                onSelectOption = onOptionSelected
+                isSelectedOption = listSelected.value.contains(text),
+                onSelectOption = {
+                    onSelected(it)
+                }
             )
         }
     }
@@ -243,22 +345,17 @@ private fun CheckBoxGroup(
 
 @Composable
 fun SelectOption(
-    text: String,
-    isSelectedOption: Boolean,
-    onSelectOption: (String) -> Unit
+    text: String, isSelectedOption: Boolean, onSelectOption: (String) -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .background(LightGrey0)
             .padding(vertical = 20.dp, horizontal = 25.dp)
-            .clickable { onSelectOption(text) }
-    ) {
+            .clickable { onSelectOption(text) }) {
         Text(
-            text = text,
-            style = TextStyle(
+            text = text, style = TextStyle(
                 fontSize = 15.sp,
                 color = Color.Black,
             )
@@ -292,8 +389,7 @@ fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
 ) {
-    BasicTextField(
-        value = value,
+    BasicTextField(value = value,
         onValueChange = onValueChange,
         singleLine = true,
         maxLines = 1,
@@ -309,9 +405,7 @@ fun SearchField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(
-                        width = 1.dp,
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(10.dp)
+                        width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(10.dp)
                     )
                     .padding(vertical = 10.dp, horizontal = 14.dp)
             ) {
@@ -331,48 +425,51 @@ fun SearchField(
                                 fontSize = 15.sp,
                             ),
                         )
-                    } else
-                        innerTextField()
+                    } else innerTextField()
                 }
             }
-        }
-    )
+        })
 }
 
 @Composable
 fun BottomFieldBar(
-    onClickSelectionField: () -> Unit
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel(),
 ) {
-    var value by remember {
-        mutableStateOf("")
-    }
-    var number by remember {
-        mutableStateOf(0)
-    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        RangeOfApprovalField(type = "Minimum", value = value) {
-            value = it
+        var minimum = remember {
+            viewModel.minimum
         }
-        RangeOfApprovalField(type = "Maxmum", value = value) {
-            value = it
+        var maximum = remember {
+            viewModel.maximum
         }
-        NumOfApprovalField(value = if (number == 0) "" else number.toString(), onValueChange = {
-            number = if (it.isBlank()) 0 else it.toInt()
-        })
-        //Approver selection
-        for (i in 1..number) {
-            SelectionField(
-                listSelect = listOf(
-                    "GROUP1, GROUP2",
-                    "GROUP1, GROUP2, GROUP3"
-                ),
-                label = "${stringResource(id = R.string.approver)} (${stringResource(id = R.string.sequence)} $i)",
-                onSelected = {
+        var numOfApproval = remember {
+            viewModel.numOfApproval
+        }
+        RangeOfApprovalField(type = "Minimum", value = minimum.value) {
+            minimum.value = it
+        }
+        RangeOfApprovalField(type = "Maxmum", value = maximum.value) {
+            maximum.value = it
+        }
+        NumOfApprovalField(value = if (numOfApproval.value == 0) "" else numOfApproval.value.toString(),
+            onValueChange = {
+                numOfApproval.value = if (it.isBlank()) 0 else it.toInt()
+            })
 
-                },
-                modifier = Modifier.clickable { onClickSelectionField() }
+        val approverSelected =
+            viewModel.approverSelected.collectAsState()
+        //Approver selection
+        for (i in 1..numOfApproval.value) {
+            val value =
+                if (approverSelected.value[i - 1] == null) stringResource(id = R.string.select_approver) else approverSelected.value[i - 1]!!.approver
+            SelectionField(
+                label = "${stringResource(id = R.string.approver)} (${stringResource(id = R.string.sequence)} $i)",
+
+                modifier = Modifier.clickable { viewModel.showListOptionApprover(i - 1) },
+                value = value
             )
         }
     }
@@ -381,8 +478,7 @@ fun BottomFieldBar(
 
 @Composable
 fun NumOfApprovalField(
-    value: String,
-    onValueChange: (String) -> Unit
+    value: String, onValueChange: (String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -394,8 +490,7 @@ fun NumOfApprovalField(
                 fontSize = 15.sp,
             ),
         )
-        BasicTextField(
-            value = value,
+        BasicTextField(value = value,
             onValueChange = onValueChange,
             singleLine = true,
             maxLines = 1,
@@ -409,9 +504,7 @@ fun NumOfApprovalField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(15.dp)
+                            width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(15.dp)
                         )
                         .padding(vertical = 10.dp, horizontal = 14.dp)
                 ) {
@@ -423,15 +516,12 @@ fun NumOfApprovalField(
                                 fontSize = 15.sp,
                             ),
                         )
-                    } else
-                        innerTextField()
+                    } else innerTextField()
                 }
-            }
-        )
+            })
         //error text field
         Text(
-            text = "",
-            style = TextStyle(
+            text = "", style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
@@ -441,9 +531,7 @@ fun NumOfApprovalField(
 
 @Composable
 fun RangeOfApprovalField(
-    type: String,
-    value: String,
-    onValueChange: (String) -> Unit
+    type: String, value: String, onValueChange: (String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -455,8 +543,7 @@ fun RangeOfApprovalField(
                 fontSize = 15.sp,
             ),
         )
-        BasicTextField(
-            value = value,
+        BasicTextField(value = value,
             onValueChange = onValueChange,
             singleLine = true,
             maxLines = 1,
@@ -470,9 +557,7 @@ fun RangeOfApprovalField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(15.dp)
+                            width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(15.dp)
                         )
                         .padding(vertical = 10.dp, horizontal = 14.dp)
                 ) {
@@ -492,15 +577,12 @@ fun RangeOfApprovalField(
                                 fontSize = 15.sp,
                             ),
                         )
-                    } else
-                        innerTextField()
+                    } else innerTextField()
                 }
-            }
-        )
+            })
         //error text field
         Text(
-            text = "",
-            style = TextStyle(
+            text = "", style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
@@ -510,13 +592,14 @@ fun RangeOfApprovalField(
 
 @Composable
 fun TopFieldBar(
-    value: String,
-    onClickSelectionField: () -> Unit,
-    onValueChange: (String) -> Unit,
+    onClickSelectionField: () -> Unit, viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
+        var alias = remember {
+            viewModel.alias
+        }
         //Approval matrix alias
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -528,58 +611,54 @@ fun TopFieldBar(
                     fontSize = 15.sp,
                 ),
             )
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                maxLines = 1,
-                textStyle = TextStyle(
-                    color = Color.Black,
-                    fontSize = 15.sp,
-                ),
-                decorationBox = { innerTextField ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 1.dp,
+            BasicTextField(value = alias.value, onValueChange = {
+                alias.value = it
+            }, singleLine = true, maxLines = 1, textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = 15.sp,
+            ), decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .padding(vertical = 10.dp, horizontal = 14.dp)
+                ) {
+                    if (alias.value.isEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.holder_field_input_matrix_name),
+                            style = TextStyle(
                                 color = Color.LightGray,
-                                shape = RoundedCornerShape(15.dp)
-                            )
-                            .padding(vertical = 10.dp, horizontal = 14.dp)
-                    ) {
-                        if (value.isEmpty()) {
-                            Text(
-                                text = stringResource(id = R.string.holder_field_input_matrix_name),
-                                style = TextStyle(
-                                    color = Color.LightGray,
-                                    fontSize = 15.sp,
-                                ),
-                            )
-                        } else {
-                            innerTextField()
-                        }
+                                fontSize = 15.sp,
+                            ),
+                        )
+                    } else {
+                        innerTextField()
                     }
                 }
-            )
+            })
             //error text field
             Text(
-                text = "",
-                style = TextStyle(
+                text = "", style = TextStyle(
                     fontSize = 10.sp,
                     color = Color.Red,
                 )
             )
         }
 
+        val featureSelected = remember {
+            viewModel.featureSelected
+        }
+
         //FeatureField
         SelectionField(
             modifier = Modifier.clickable { onClickSelectionField.invoke() },
-            listSelect = listOf("Default", "Transfer Online"),
-            label = stringResource(id = R.string.feature)
-        ) {
-
-        }
+            label = stringResource(id = R.string.feature),
+            value = if (featureSelected.value == null) stringResource(id = R.string.select_feature) else featureSelected.value!!.feature
+        )
     }
 
 }
@@ -587,15 +666,13 @@ fun TopFieldBar(
 @Composable
 fun SelectionField(
     modifier: Modifier,
-    listSelect: List<String>,
     label: String,
-    onSelected: (String) -> Unit,
+    value: String,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
+        verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
     ) {
         Text(
             text = label,
@@ -608,21 +685,20 @@ fun SelectionField(
             modifier = modifier
                 .fillMaxWidth()
                 .border(
-                    width = 1.dp,
-                    color = Color.LightGray,
-                    shape = RoundedCornerShape(15.dp)
+                    width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(15.dp)
                 )
                 .padding(vertical = 10.dp, horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(id = R.string.select_feature),
-                style = TextStyle(
-                    color = Color.LightGray,
+                text = value, style = TextStyle(
+                    color = if (value == stringResource(id = R.string.select_approver) || value == stringResource(
+                            id = R.string.select_feature
+                        )
+                    ) Color.LightGray else Color.Black,
                     fontSize = 15.sp,
-                ),
-                modifier = Modifier
+                ), modifier = Modifier
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -634,8 +710,7 @@ fun SelectionField(
         }
         //error text field
         Text(
-            text = "",
-            style = TextStyle(
+            text = "", style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
@@ -649,30 +724,28 @@ fun SelectionField(
 fun TopAppBarApprovalMatrixScreen(
     onBack: () -> Unit,
 ) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                fontWeight = FontWeight.Normal,
-                color = Color.White
-            )
-        },
-        navigationIcon = {
-            Icon(
-                imageVector = Icons.Default.ArrowBack, contentDescription = "Back",
-                modifier = Modifier
-                    .padding(5.dp)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .clickable { onBack.invoke() },
-                tint = MaterialTheme.colors.primary
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colors.primary
+    CenterAlignedTopAppBar(title = {
+        Text(
+            text = stringResource(id = R.string.app_name),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+            fontWeight = FontWeight.Normal,
+            color = Color.White
         )
+    }, navigationIcon = {
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Back",
+            modifier = Modifier
+                .padding(5.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable { onBack.invoke() },
+            tint = MaterialTheme.colors.primary
+        )
+    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        containerColor = MaterialTheme.colors.primary
+    )
     )
 }
 
@@ -694,8 +767,7 @@ fun ButtonApprovalMatrixScreen(
         contentPadding = PaddingValues(vertical = 12.dp)
     ) {
         Text(
-            text = title,
-            style = TextStyle(
+            text = title, style = TextStyle(
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (enable) textColor else BrandingGrey
@@ -715,8 +787,7 @@ fun HeaderBar(
                 .height(60.dp)
         ) {
             Text(
-                text = title,
-                style = TextStyle(
+                text = title, style = TextStyle(
                     color = MaterialTheme.colors.primary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold

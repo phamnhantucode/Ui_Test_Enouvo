@@ -1,10 +1,7 @@
 package com.phamnhantucode.uitestenouvo.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Card
@@ -12,7 +9,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -26,62 +25,71 @@ import com.phamnhantucode.uitestenouvo.ui.theme.mediumTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FailedActionDialog(
+fun FailedDialog(
     message: List<String>,
-    title: String = "•",
+    title: String,
     onConfirm: () -> Unit,
-    onCancel: () -> Unit,
 ) {
-    Card(
-        shape = RoundedCornerShape(10.dp),
+    Box(
         modifier = Modifier
-            .padding(15.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+            .fillMaxSize()
+            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .background(Color(0x80000000))
     ) {
-        Column(
+        Card(
+            shape = RoundedCornerShape(10.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, start = 20.dp, end = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .fillMaxWidth(0.8f)
+                .align(Alignment.Center),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
         ) {
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth(),
-            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                message.forEach {
-                    Text(
-                        text = "-  $it"
-                    )
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 35.dp, vertical = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                ButtonApprovalMatrixScreen(
-                    textColor = Color.White,
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
-                    title = stringResource(id = R.string.back_to_edit).uppercase()
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
                 ) {
-
+                    message.forEach {
+                        if (it.isNotBlank()) {
+                            Text(
+                                text = "-  $it"
+                            )
+                        }
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 35.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ButtonApprovalMatrixScreen(
+                        textColor = Color.White,
+                        backgroundColor = MaterialTheme.colors.primaryVariant,
+                        title = stringResource(id = R.string.back_to_edit).uppercase()
+                    ) {
+                        onConfirm.invoke()
+                    }
                 }
             }
         }

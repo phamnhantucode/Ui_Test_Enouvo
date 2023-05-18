@@ -6,11 +6,12 @@ import com.phamnhantucode.uitestenouvo.data.datasource.dao.ApprovalDao
 import com.phamnhantucode.uitestenouvo.data.datasource.dao.ApproverDao
 import com.phamnhantucode.uitestenouvo.data.datasource.dao.FeatureDao
 import com.phamnhantucode.uitestenouvo.domain.model.Approval
+import com.phamnhantucode.uitestenouvo.domain.model.ApprovalApprover
 import com.phamnhantucode.uitestenouvo.domain.model.Approver
 import com.phamnhantucode.uitestenouvo.domain.model.Feature
 
 @Database(
-    entities = [Approval::class, Approver::class, Feature::class],
+    entities = [Approval::class, Approver::class, Feature::class, ApprovalApprover::class],
     version = 1,
     exportSchema = true
 )

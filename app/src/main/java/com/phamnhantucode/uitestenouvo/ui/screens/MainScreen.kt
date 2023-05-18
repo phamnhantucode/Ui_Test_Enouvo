@@ -1,12 +1,12 @@
 package com.phamnhantucode.uitestenouvo.ui.screens
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import com.phamnhantucode.uitestenouvo.R
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,14 +27,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.phamnhantucode.uitestenouvo.*
 import com.phamnhantucode.uitestenouvo.domain.model.Approver
+import com.phamnhantucode.uitestenouvo.domain.viewmodel.MainScreenViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: MainScreenViewModel = hiltViewModel()
 ) {
     Scaffold(
         topBar = {
@@ -53,7 +57,7 @@ fun MainScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         NewMatrixBar() {
-                            navController.navigate(Screens.ApprovalMatrixScreen.route)
+                            navController.navigate(Screens.ApprovalMatrixScreen.toAddNewMatrix())
                         }
                         Divider()
                         ListFilterBar(filter = listOf())
@@ -158,28 +162,21 @@ fun ListFilterBar(
 
 @Composable
 fun ListMatrixBar(
-
+    viewModel: MainScreenViewModel = hiltViewModel()
 ) {
+    val approvalView = viewModel.approvalViews.collectAsState()
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        item {
+        items(approvalView.value) {approvalView ->
             CardApprovalMatrix(
-                0,
-                50000,
-                1,
-                listOf(Approver(1, "TEST2"))
-            )
-        }
-        item {
-            CardApprovalMatrix(
-                50000,
-                100000,
-                1,
-                listOf(Approver(1, "TEST1"))
+                approvalView.minimum,
+                approvalView.maximum,
+                approvalView.num_of_approver,
+                approvalView.approvers
             )
         }
     }

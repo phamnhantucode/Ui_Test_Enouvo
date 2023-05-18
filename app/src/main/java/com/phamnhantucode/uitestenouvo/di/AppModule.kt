@@ -25,6 +25,7 @@ object AppModule {
             app.applicationContext,
             ApprovalMatrixDatabase::class.java,
             ApprovalMatrixDatabase.DATABASE_NAME
-        ).createFromAsset("database/money_manager.db").build()
+        ).createFromAsset("database/init.db")
+            .build()
     }
 }
