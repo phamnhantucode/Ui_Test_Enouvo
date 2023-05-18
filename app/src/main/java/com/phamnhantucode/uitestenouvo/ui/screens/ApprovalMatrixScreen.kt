@@ -707,15 +707,20 @@ fun TopFieldBar(
                 ),
             )
             val keyboardController = LocalSoftwareKeyboardController.current
-            BasicTextField(value = alias.value, onValueChange = {
-                alias.value = it
-            },
+            BasicTextField(
+                value = alias.value,
+                onValueChange = {
+                    alias.value = it
+                },
                 keyboardActions = KeyboardActions(
                     onDone = {
                         // Close the keyboard
 
                         keyboardController?.hide()
                     }
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
                 ),
                 singleLine = true, maxLines = 1, textStyle = TextStyle(
                     color = Color.Black,
@@ -729,9 +734,6 @@ fun TopFieldBar(
                                 color = Color.LightGray,
                                 shape = RoundedCornerShape(15.dp)
                             )
-                            .clickable {
-
-                            }
                             .padding(vertical = 10.dp, horizontal = 14.dp)
                     ) {
                         if (alias.value.isEmpty()) {
