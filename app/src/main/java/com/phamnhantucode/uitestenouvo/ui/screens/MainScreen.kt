@@ -15,8 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +61,7 @@ fun MainScreen(
                             navController.navigate(Screens.ApprovalMatrixScreen.toAddNewMatrix())
                         }
                         Divider()
-                        ListFilterBar(filter = listOf())
+                        ListFilterBar(filter = viewModel.feature.map { it.feature })
                         ListMatrixBar(navController = navController)
                         Divider()
                     }
@@ -131,34 +130,33 @@ fun NewMatrixBar(
 
 @Composable
 fun ListFilterBar(
-    filter: List<String>
+    filter: List<String>,
+    viewModel: MainScreenViewModel = hiltViewModel()
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-//        filter.forEach {
-//            FilterBar(
-//                onClick = {
-//
-//                },
-//                title = it,
-//                isClicked = false
-//                )
-//        }
-        FilterBar(
-            onClick = {
-
-            },
-            title = "Default",
-            isClicked = false
-        )
-        FilterBar(
-            onClick = {
-
-            },
-            title = "Transfer Online",
-            isClicked = true
-        )
+        val listSelect = remember {
+            mutableStateOf(mutableListOf<String>())
+        }
+        filter.forEach {feature ->
+            val isClick = remember {
+                mutableStateOf(false)
+            }
+            FilterBar(
+                onClick = {
+                    if (!listSelect.value.contains(feature)) {
+                        listSelect.value.add(feature)
+                    } else {
+                        listSelect.value.remove(feature)
+                    }
+                    isClick.value = !isClick.value
+                    viewModel.onEvent(MainScreenViewModel.Event.FilterBy(listSelect.value))
+                },
+                title = feature,
+                isClicked = isClick.value
+            )
+        }
     }
 }
 
@@ -167,7 +165,7 @@ fun ListMatrixBar(
     viewModel: MainScreenViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    val approvalView = viewModel.approvalViews.collectAsState()
+    val approvalView = viewModel.approvalViewsFilter
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,6 +201,9 @@ fun FilterBar(
                 color = colorBorder,
                 shape = RoundedCornerShape(15.dp)
             )
+            .clickable {
+                onClick.invoke()
+            }
     ) {
         Row(
             modifier = Modifier

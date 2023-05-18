@@ -9,6 +9,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -21,9 +22,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -426,11 +429,13 @@ fun SelectOption(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     BasicTextField(value = value,
         onValueChange = onValueChange,
         singleLine = true,
@@ -440,6 +445,13 @@ fun SearchField(
             fontSize = 15.sp,
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                // Close the keyboard
+
+                keyboardController?.hide()
+            }
+        ),
         decorationBox = { innerTextField ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -519,6 +531,7 @@ fun BottomFieldBar(
 
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NumOfApprovalField(
     value: String, onValueChange: (String) -> Unit
@@ -533,6 +546,7 @@ fun NumOfApprovalField(
                 fontSize = 15.sp,
             ),
         )
+        val keyboardController = LocalSoftwareKeyboardController.current
         BasicTextField(value = value,
             onValueChange = onValueChange,
             singleLine = true,
@@ -542,6 +556,11 @@ fun NumOfApprovalField(
                 fontSize = 15.sp,
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                }
+            ),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -572,6 +591,7 @@ fun NumOfApprovalField(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RangeOfApprovalField(
     type: String, value: String, onValueChange: (String) -> Unit
@@ -586,6 +606,7 @@ fun RangeOfApprovalField(
                 fontSize = 15.sp,
             ),
         )
+        val keyboardController = LocalSoftwareKeyboardController.current
         BasicTextField(value = value,
             onValueChange = onValueChange,
             singleLine = true,
@@ -595,6 +616,11 @@ fun RangeOfApprovalField(
                 fontSize = 15.sp,
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                }
+            ),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -633,6 +659,7 @@ fun RangeOfApprovalField(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TopFieldBar(
     onClickSelectionField: () -> Unit, viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
@@ -654,9 +681,18 @@ fun TopFieldBar(
                     fontSize = 15.sp,
                 ),
             )
+            val keyboardController = LocalSoftwareKeyboardController.current
             BasicTextField(value = alias.value, onValueChange = {
                 alias.value = it
-            }, singleLine = true, maxLines = 1, textStyle = TextStyle(
+            },
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        // Close the keyboard
+
+                        keyboardController?.hide()
+                    }
+                ),
+                singleLine = true, maxLines = 1, textStyle = TextStyle(
                 color = Color.Black,
                 fontSize = 15.sp,
             ), decorationBox = { innerTextField ->

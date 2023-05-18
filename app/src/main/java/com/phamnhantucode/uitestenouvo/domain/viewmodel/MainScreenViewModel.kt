@@ -1,5 +1,8 @@
 package com.phamnhantucode.uitestenouvo.domain.viewmodel
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.phamnhantucode.uitestenouvo.data.repository.ApprovalRepositoryImpl
@@ -7,9 +10,11 @@ import com.phamnhantucode.uitestenouvo.domain.model.ApprovalView
 import com.phamnhantucode.uitestenouvo.domain.model.Feature
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.intellij.lang.annotations.JdkConstants.InputEventMask
 import javax.inject.Inject
 
 
@@ -20,6 +25,7 @@ class MainScreenViewModel @Inject constructor(
 
     private val _approvalViews = MutableStateFlow(emptyList<ApprovalView>())
     val approvalViews = _approvalViews.asStateFlow()
+    val approvalViewsFilter = mutableStateOf(emptyList<ApprovalView>())
 
     private val _event = MutableSharedFlow<Event>()
     val event = _event.asSharedFlow()
@@ -46,6 +52,9 @@ class MainScreenViewModel @Inject constructor(
                     _approvalViews.emit(
                         approvals.map { approval ->
                             approval.toApprovalView(approvalRepository)
+                        }.also {
+                            delay(400)
+                            approvalViewsFilter.value = it
                         }
                     )
                 }
@@ -53,9 +62,22 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun onEvent(event: Event) {
+        when (event) {
+            is Event.FilterBy -> {
+                if (event.feature.size > 0) {
+                    approvalViewsFilter.value = approvalViews.value.filter {
+                        event.feature.contains(it.feature?.feature)
+                    }
+                } else {
+                    approvalViewsFilter.value = approvalViews.value
+                }
+            }
+        }
+    }
 
 
     sealed class Event {
-//        object New : Event()
+        class FilterBy(val feature: List<String>) : Event()
     }
 }
