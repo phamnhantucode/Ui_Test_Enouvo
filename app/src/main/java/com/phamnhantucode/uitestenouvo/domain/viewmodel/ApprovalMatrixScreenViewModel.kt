@@ -35,12 +35,12 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
     var numOfApproval = mutableStateOf(0)
 
     var onShowListOption = mutableStateOf(false)
+    var saveListOption = emptyList<String>()
     var listStringOption = MutableStateFlow(mutableListOf<String>())
     var onSelectOption: (String) -> Unit = {}
     var listOptionSelected = MutableStateFlow(mutableListOf<String>())
+    var filterOption = mutableStateOf("")
 
-    private val _event = mutableStateOf<Event>(Event.InitialEven)
-    val event: State<Event> = _event
 
     val error = mutableStateOf(ErrorValidateInput())
 
@@ -98,6 +98,7 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
     fun showListOptionFeature() {
         viewModelScope.launch {
             onShowListOption.value = true
+            saveListOption = features.map { it.feature }
             listStringOption.emit(features.map { it.feature }.toMutableList())
             listOptionSelected.emit(
                 if (featureSelected.value == null) mutableListOf() else mutableListOf(
@@ -117,6 +118,7 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
     fun showListOptionApprover(index: Int) {
         viewModelScope.launch {
             onShowListOption.value = true
+            saveListOption = approvers.map { it.approver }
             listStringOption.emit(approvers.map { it.approver }.toMutableList())
             listOptionSelected.emit(
                 approverSelected.value.values.map { it.approver }.toMutableList()
@@ -252,10 +254,18 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
         }
     }
 
+    fun onEvent(event: Event) {
+        viewModelScope.launch {
+            when (event) {
+                is Event.FilterOption -> {
+                    listStringOption.emit(saveListOption.filter { it.lowercase().contains(filterOption.value) }.toMutableList())
+                }
+            }
+        }
+    }
+
     sealed class Event {
-        object SelectionFeature : Event()
-        object SelectionApprover : Event()
-        object InitialEven : Event()
+        object FilterOption : Event()
     }
 
 

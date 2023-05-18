@@ -126,7 +126,7 @@ fun EditScreen(
         BottomSheetSelection(
             onShowListOption,
             stringResource(id = R.string.select_option),
-            onSelected ={
+            onSelected = {
                 viewModel.onSelectOption(it)
             }
         )
@@ -295,6 +295,7 @@ fun GroupInputField(
 fun BottomSheetSelection(
     onShowListOption: MutableState<Boolean>,
     title: String,
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel(),
     onSelected: (String) -> Unit
 ) {
     AnimatedVisibility(
@@ -354,9 +355,11 @@ fun BottomSheetSelection(
                         }
                     }
 
+                    val filterOption = viewModel.filterOption
                     //Search bottom sheet
-                    SearchField(value = "", onValueChange = {
-
+                    SearchField(value = filterOption.value, onValueChange = {
+                        filterOption.value = it
+                        viewModel.onEvent(ApprovalMatrixScreenViewModel.Event.FilterOption)
                     })
                 }
                 //list selection
@@ -450,7 +453,7 @@ fun SearchField(
             color = Color.Black,
             fontSize = 15.sp,
         ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         keyboardActions = KeyboardActions(
             onDone = {
                 // Close the keyboard
@@ -509,18 +512,27 @@ fun BottomFieldBar(
         var numOfApproval = remember {
             viewModel.numOfApproval
         }
-        RangeOfApprovalField(type = "Minimum", value = minimum.value,  error.rangeOfApprovalResult) {
+        RangeOfApprovalField(type = "Minimum", value = minimum.value, error.rangeOfApprovalResult) {
             minimum.value = it
         }
         RangeOfApprovalField(type = "Maxmum", value = maximum.value, error.rangeOfApprovalResult) {
             maximum.value = it
         }
-        NumOfApprovalField(value = if (numOfApproval.value == 0) "" else numOfApproval.value.toString(),
+        NumOfApprovalField(
+            value = if (numOfApproval.value == 0) "" else numOfApproval.value.toString(),
             onValueChange = {
-                numOfApproval.value = if (it.isBlank()) 0 else it.toInt()
+                if (it.isBlank())
+                    numOfApproval.value = 0
+                else {
+                    if (it.toInt() < 10)
+                        numOfApproval.value = it.toInt()
+                    else numOfApproval.value = it[1].toString().toInt()
+
+                }
                 viewModel.approverSelected.value = mutableMapOf()
             },
-        error = error.numOfApproverResult)
+            error = error.numOfApproverResult
+        )
 
         val approverSelected =
             viewModel.approverSelected.collectAsState()
@@ -706,32 +718,35 @@ fun TopFieldBar(
                     }
                 ),
                 singleLine = true, maxLines = 1, textStyle = TextStyle(
-                color = Color.Black,
-                fontSize = 15.sp,
-            ), decorationBox = { innerTextField ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(15.dp)
-                        )
-                        .padding(vertical = 10.dp, horizontal = 14.dp)
-                ) {
-                    if (alias.value.isEmpty()) {
-                        Text(
-                            text = stringResource(id = R.string.holder_field_input_matrix_name),
-                            style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 15.sp,
+                ), decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
                                 color = Color.LightGray,
-                                fontSize = 15.sp,
-                            ),
-                        )
-                    } else {
-                        innerTextField()
+                                shape = RoundedCornerShape(15.dp)
+                            )
+                            .clickable {
+
+                            }
+                            .padding(vertical = 10.dp, horizontal = 14.dp)
+                    ) {
+                        if (alias.value.isEmpty()) {
+                            Text(
+                                text = stringResource(id = R.string.holder_field_input_matrix_name),
+                                style = TextStyle(
+                                    color = Color.LightGray,
+                                    fontSize = 15.sp,
+                                ),
+                            )
+                        } else {
+                            innerTextField()
+                        }
                     }
-                }
-            })
+                })
             //error text field
             Text(
                 text = error.aliasResult, style = TextStyle(
