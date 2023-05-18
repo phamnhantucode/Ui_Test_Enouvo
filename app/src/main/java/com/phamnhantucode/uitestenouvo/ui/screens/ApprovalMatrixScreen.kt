@@ -96,7 +96,7 @@ fun EditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp, horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ButtonApprovalMatrixScreen(
                     textColor = Color.White,
@@ -154,7 +154,7 @@ fun AddScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp, horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ButtonApprovalMatrixScreen(
                     textColor = Color.White,
@@ -227,14 +227,20 @@ fun GroupInputField(
 
         HeaderBar("Create New Approval Matrix")
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-
-            TopFieldBar(onClickSelectionField = {
-                viewModel.showListOptionFeature()
-            })
+            val error = viewModel.error.value
+            TopFieldBar(
+                error = error,
+                onClickSelectionField = {
+                    viewModel.showListOptionFeature()
+                }
+            )
             Divider()
-            BottomFieldBar()
+            BottomFieldBar(
+                error = error,
+            )
         }
     }
 }
@@ -401,7 +407,7 @@ fun SearchField(
         decorationBox = { innerTextField ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(
@@ -434,10 +440,11 @@ fun SearchField(
 @Composable
 fun BottomFieldBar(
     viewModel: ApprovalMatrixScreenViewModel = hiltViewModel(),
+    error: ApprovalMatrixScreenViewModel.ErrorValidateInput,
 ) {
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
         var minimum = remember {
             viewModel.minimum
@@ -448,16 +455,17 @@ fun BottomFieldBar(
         var numOfApproval = remember {
             viewModel.numOfApproval
         }
-        RangeOfApprovalField(type = "Minimum", value = minimum.value) {
+        RangeOfApprovalField(type = "Minimum", value = minimum.value, error.rangeOfApprovalResult) {
             minimum.value = it
         }
-        RangeOfApprovalField(type = "Maxmum", value = maximum.value) {
+        RangeOfApprovalField(type = "Maxmum", value = maximum.value, error.rangeOfApprovalResult) {
             maximum.value = it
         }
         NumOfApprovalField(value = if (numOfApproval.value == 0) "" else numOfApproval.value.toString(),
             onValueChange = {
                 numOfApproval.value = if (it.isBlank()) 0 else it.toInt()
-            })
+            },
+        error = error.numOfApproverResult)
 
         val approverSelected =
             viewModel.approverSelected.collectAsState()
@@ -469,7 +477,8 @@ fun BottomFieldBar(
                 label = "${stringResource(id = R.string.approver)} (${stringResource(id = R.string.sequence)} $i)",
 
                 modifier = Modifier.clickable { viewModel.showListOptionApprover(i - 1) },
-                value = value
+                value = value,
+                error = error.approversResult
             )
         }
     }
@@ -478,10 +487,12 @@ fun BottomFieldBar(
 
 @Composable
 fun NumOfApprovalField(
-    value: String, onValueChange: (String) -> Unit
+    value: String,
+    error: String,
+    onValueChange: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(id = R.string.number_of_approval),
@@ -521,7 +532,7 @@ fun NumOfApprovalField(
             })
         //error text field
         Text(
-            text = "", style = TextStyle(
+            text = error, style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
@@ -531,10 +542,10 @@ fun NumOfApprovalField(
 
 @Composable
 fun RangeOfApprovalField(
-    type: String, value: String, onValueChange: (String) -> Unit
+    type: String, value: String, error: String, onValueChange: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(id = R.string.range_of_approval) + " ($type)",
@@ -582,7 +593,7 @@ fun RangeOfApprovalField(
             })
         //error text field
         Text(
-            text = "", style = TextStyle(
+            text = error, style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
@@ -592,7 +603,9 @@ fun RangeOfApprovalField(
 
 @Composable
 fun TopFieldBar(
-    onClickSelectionField: () -> Unit, viewModel: ApprovalMatrixScreenViewModel = hiltViewModel()
+    onClickSelectionField: () -> Unit,
+    viewModel: ApprovalMatrixScreenViewModel = hiltViewModel(),
+    error: ApprovalMatrixScreenViewModel.ErrorValidateInput
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -602,7 +615,7 @@ fun TopFieldBar(
         }
         //Approval matrix alias
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.approval_matrix_alias),
@@ -642,7 +655,7 @@ fun TopFieldBar(
             })
             //error text field
             Text(
-                text = "", style = TextStyle(
+                text = error.aliasResult, style = TextStyle(
                     fontSize = 10.sp,
                     color = Color.Red,
                 )
@@ -657,7 +670,8 @@ fun TopFieldBar(
         SelectionField(
             modifier = Modifier.clickable { onClickSelectionField.invoke() },
             label = stringResource(id = R.string.feature),
-            value = if (featureSelected.value == null) stringResource(id = R.string.select_feature) else featureSelected.value!!.feature
+            value = if (featureSelected.value == null) stringResource(id = R.string.select_feature) else featureSelected.value!!.feature,
+            error = error.featureResult
         )
     }
 
@@ -668,11 +682,12 @@ fun SelectionField(
     modifier: Modifier,
     label: String,
     value: String,
+    error: String
 ) {
 
     val coroutineScope = rememberCoroutineScope()
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
+        verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier
     ) {
         Text(
             text = label,
@@ -706,11 +721,10 @@ fun SelectionField(
                 modifier = Modifier,
                 tint = Color(0xFF919192)
             )
-
         }
         //error text field
         Text(
-            text = "", style = TextStyle(
+            text = error, style = TextStyle(
                 fontSize = 10.sp,
                 color = Color.Red,
             )
