@@ -77,7 +77,7 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 if (id >= 0) {
                     _approvalView.value =
-                        approvalRepository.getApproval(id = id).toApprovalView(approvalRepository).also {av ->
+                        approvalRepository.getApproval(id = id)?.toApprovalView(approvalRepository)?.also {av ->
                             alias.value = av.alias
                             featureSelected.value = av.feature
                             minimum.value = av.minimum.toString()
@@ -88,7 +88,7 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
                                  tempMap[i] = av.approvers[i]
                             }
                             approverSelected.emit(tempMap)
-                        }
+                        } ?: ApprovalView()
                 }
 
             }
@@ -236,7 +236,20 @@ class ApprovalMatrixScreenViewModel @Inject constructor(
     }
 
     fun deleteApprovalMatrix() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                approvalRepository.deleteApprovalView(
+                    approvalView.value.copy(
+                        alias = alias.value,
+                        minimum = minimum.value.toLong(),
+                        maximum = maximum.value.toLong(),
+                        num_of_approver = numOfApproval.value,
+                        feature = featureSelected.value,
+                        approvers = approverSelected.value.map { it.value }
+                    )
+                )
+            }
+        }
     }
 
     sealed class Event {

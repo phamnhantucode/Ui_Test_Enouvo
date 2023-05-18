@@ -19,10 +19,10 @@ class ApprovalRepositoryImpl(
 
     override suspend fun getApprovalView(id: Int): ApprovalView {
         val approval = getApproval(id)
-        return approval.toApprovalView(this)
+        return approval?.toApprovalView(this) ?: ApprovalView()
     }
 
-    override suspend fun getApproval(id: Int): Approval {
+    override suspend fun getApproval(id: Int): Approval? {
         return approvalDao.getApproval(id)
     }
 
@@ -45,7 +45,7 @@ class ApprovalRepositoryImpl(
     }
 
     override suspend fun updateApprovalView(approvalView: ApprovalView) {
-        approvalDao.updateApproval(
+        approvalDao.updateApprovalView(
             approval = Approval(
                 id = approvalView.id,
                 alias = approvalView.alias,
@@ -59,7 +59,17 @@ class ApprovalRepositoryImpl(
     }
 
     override suspend fun deleteApprovalView(approvalView: ApprovalView) {
-
+        approvalDao.deleteApprovalView(
+            approval = Approval(
+                id = approvalView.id,
+                alias = approvalView.alias,
+                minimum = approvalView.minimum,
+                maximum = approvalView.maximum,
+                num_of_approver = approvalView.num_of_approver,
+                featureId = approvalView.feature!!.id
+            ),
+            approvers = approvalView.approvers
+        )
     }
 
     override suspend fun getFeature(featureId: Int): Feature {
