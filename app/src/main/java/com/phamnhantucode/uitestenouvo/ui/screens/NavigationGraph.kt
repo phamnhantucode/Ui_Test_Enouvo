@@ -13,8 +13,11 @@ fun NavigationGraph(
     navController: NavHostController = rememberNavController(),
 ) {
     NavHost(navController = navController, startDestination = Screens.MainScreen.route) {
-        composable(Screens.MainScreen.route) {
+        composable(
+            Screens.MainScreen.route,
+        ) {
             MainScreen(navController = navController)
+
         }
         composable(
             Screens.ApprovalMatrixScreen.route + "/{type}/{id}",
